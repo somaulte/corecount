@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+#
+# corecount: Display cpu cores and their loads in a simple display
+# https://github.com/somaulte/corecount
+#
+# MIT License
+#
+# Copyright (c) 2018 somaulte <somaulte@teknik.io>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+# Except as contained in this notice, the name(s) of the above copyright
+# holders shall not be used in advertising or otherwise to promote the sale, use
+# or other dealings in this Software without prior written authorization.
+
+# Fetch a list of which core/load from each process
+IFS=$'\n ' read -d "" -ra process <<< "$(ps --no-headers -e -o psr,cp=)"
+
+# Find total load per core
+for i in "${!process[@]}"; do
+	[[ $(( "$i" % 2 )) -eq 0 ]] && core="${process[$i]}" || load="${process[$i]}"
+	[[ -n "$core" ]] && [[ -n "$load" ]] && {
+		ccore="core$core"
+		ccoreload=$"${!ccore}"
+		[[ -z "$ccoreload" ]] && coreload="$load" || coreload="$(( $ccoreload + $load ))"
+		eval "core$core"="$coreload"
+	}
+done
+
+corecount=
+
+# If load is greater than 50%, set core display on
+for i in $core{0..11}; do
+	if [[ "$i" -gt '900' ]]; then
+		corecount="${corecount}<span color=\"#c49de8\"></span>"
+	elif [[ "$i" -gt '800' ]]; then
+		corecount="${corecount}<span color=\"#b794e5\"></span>"
+	elif [[ "$i" -gt '700' ]]; then
+		corecount="${corecount}<span color=\"#aa8ae1\"></span>"
+	elif [[ "$i" -gt '600' ]]; then
+		corecount="${corecount}<span color=\"#906ec7\"></span>"
+	elif [[ "$i" -gt '500' ]]; then
+		corecount="${corecount}<span color=\"#7651ad\"></span>"
+	elif [[ "$i" -gt '400' ]]; then
+		corecount="${corecount}<span color=\"#5c3593\"></span>"
+	elif [[ "$i" -gt '300' ]]; then
+		corecount="${corecount}<span color=\"#421878\"></span>"
+	elif [[ "$i" -gt '200' ]]; then
+		corecount="${corecount}<span color=\"#381565\"></span>"
+	elif [[ "$i" -gt '100' ]]; then
+		corecount="${corecount}<span color=\"#2d1152\"></span>"
+	else
+		corecount="${corecount}<span color=\"#230d3f\"></span>"
+	fi
+done
+
+printf '%b\n' " $corecount"
