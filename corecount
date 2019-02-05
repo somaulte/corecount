@@ -39,35 +39,36 @@ for i in "${!process[@]}"; do
 		ccore="core$core"
 		ccoreload=$"${!ccore}"
 		[[ -z "$ccoreload" ]] && coreload="$load" || coreload="$(( $ccoreload + $load ))"
-		eval "core$core"="$coreload"
+		load=
+		let "core$core"="$coreload"
 	}
 done
 
-corecount=
+display=
 
-# If load is greater than 50%, set core display on
+# Translate core : load :: display : color
 for i in $core{0..11}; do
 	if [[ "$i" -gt '900' ]]; then
-		corecount="${corecount}<span color=\"#c49de8\"></span>"
+		display="${display}<span color=\"#c49de8\"></span>"
 	elif [[ "$i" -gt '800' ]]; then
-		corecount="${corecount}<span color=\"#b794e5\"></span>"
+		display="${display}<span color=\"#b794e5\"></span>"
 	elif [[ "$i" -gt '700' ]]; then
-		corecount="${corecount}<span color=\"#aa8ae1\"></span>"
+		display="${display}<span color=\"#aa8ae1\"></span>"
 	elif [[ "$i" -gt '600' ]]; then
-		corecount="${corecount}<span color=\"#906ec7\"></span>"
+		display="${display}<span color=\"#906ec7\"></span>"
 	elif [[ "$i" -gt '500' ]]; then
-		corecount="${corecount}<span color=\"#7651ad\"></span>"
+		display="${display}<span color=\"#7651ad\"></span>"
 	elif [[ "$i" -gt '400' ]]; then
-		corecount="${corecount}<span color=\"#5c3593\"></span>"
+		display="${display}<span color=\"#5c3593\"></span>"
 	elif [[ "$i" -gt '300' ]]; then
-		corecount="${corecount}<span color=\"#421878\"></span>"
+		display="${display}<span color=\"#421878\"></span>"
 	elif [[ "$i" -gt '200' ]]; then
-		corecount="${corecount}<span color=\"#381565\"></span>"
+		display="${display}<span color=\"#381565\"></span>"
 	elif [[ "$i" -gt '100' ]]; then
-		corecount="${corecount}<span color=\"#2d1152\"></span>"
+		display="${display}<span color=\"#2d1152\"></span>"
 	else
-		corecount="${corecount}<span color=\"#230d3f\"></span>"
+		display="${display}<span color=\"#230d3f\"></span>"
 	fi
 done
 
-printf '%b\n' " $corecount"
+printf '%b\n' " $display"
