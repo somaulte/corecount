@@ -29,6 +29,12 @@
 # holders shall not be used in advertising or otherwise to promote the sale, use
 # or other dealings in this Software without prior written authorization.
 
+# Create vars for ALL cores, we want to display them even if they aren't active
+corecount="$(nproc --all)"
+for ((i=0;i<=$corecount-1;i++)); do
+	let "core$i"='0'
+done
+
 # Fetch a list of which core/load from each process
 IFS=$'\n ' read -d "" -ra process <<< "$(ps --no-headers -e -o psr,cp=)"
 
@@ -38,7 +44,7 @@ for i in "${!process[@]}"; do
 	[[ -n "$core" ]] && [[ -n "$load" ]] && {
 		ccore="core$core"
 		ccoreload=$"${!ccore}"
-		[[ -z "$ccoreload" ]] && coreload="$load" || coreload="$(( $ccoreload + $load ))"
+		coreload="$(( $ccoreload + $load ))"
 		load=
 		let "core$core"="$coreload"
 	}
@@ -47,24 +53,26 @@ done
 display=
 
 # Translate core : load :: display : color
-for i in $core{0..11}; do
-	if [[ "$i" -gt '900' ]]; then
+for ((i=0;i<=$corecount-1;i++)); do
+	ccore="core$i"
+	ccoreload=$"${!ccore}"
+	if [[ "$ccoreload" -gt '900' ]]; then
 		display="${display}<span color=\"#c49de8\"></span>"
-	elif [[ "$i" -gt '800' ]]; then
+	elif [[ "$ccoreload" -gt '800' ]]; then
 		display="${display}<span color=\"#b794e5\"></span>"
-	elif [[ "$i" -gt '700' ]]; then
+	elif [[ "$ccoreload" -gt '700' ]]; then
 		display="${display}<span color=\"#aa8ae1\"></span>"
-	elif [[ "$i" -gt '600' ]]; then
+	elif [[ "$ccoreload" -gt '600' ]]; then
 		display="${display}<span color=\"#906ec7\"></span>"
-	elif [[ "$i" -gt '500' ]]; then
+	elif [[ "$ccoreload" -gt '500' ]]; then
 		display="${display}<span color=\"#7651ad\"></span>"
-	elif [[ "$i" -gt '400' ]]; then
+	elif [[ "$ccoreload" -gt '400' ]]; then
 		display="${display}<span color=\"#5c3593\"></span>"
-	elif [[ "$i" -gt '300' ]]; then
+	elif [[ "$ccoreload" -gt '300' ]]; then
 		display="${display}<span color=\"#421878\"></span>"
-	elif [[ "$i" -gt '200' ]]; then
+	elif [[ "$ccoreload" -gt '200' ]]; then
 		display="${display}<span color=\"#381565\"></span>"
-	elif [[ "$i" -gt '100' ]]; then
+	elif [[ "$ccoreload" -gt '100' ]]; then
 		display="${display}<span color=\"#2d1152\"></span>"
 	else
 		display="${display}<span color=\"#230d3f\"></span>"
